@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { sportsProduct } from './client/sportsData';
 import Card from './cards/Cards';
-import '../src/app.css';
+import './styles/app.css';
 import Header from './components/Header';
 import './styles/header.css';
 
