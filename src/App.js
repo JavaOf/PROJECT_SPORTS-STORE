@@ -12,6 +12,9 @@ function App() {
   const [priceRange, setPriceRange] = useState([0, 5000]); 
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState([]); 
+  const [cartItems, setCartItems] = useState([]);
+  const [isCartVisible, setIsCartVisible] = useState(false); 
+  const [indexCard, setIndexcard] = useState(null);
 
 
   useEffect(() => {
@@ -51,12 +54,49 @@ function App() {
     setPriceRange([0, 5000]); 
   };
 
+  const addToCart = (product) => {
+    setCartItems((prev) => {
+      const existingItem = prev.find(item => item.id === product.id);
+      if (existingItem) {
+        return prev.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (productId) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
+  };
+  
+  const handleUpdateCartItem = (itemId, increment) => {
+    setCartItems((prev) => 
+      prev.map((item) => 
+        item.id === itemId 
+          ? { ...item, quantity: Math.max(item.quantity + increment, 1) } 
+          : item
+      )
+    );
+  };
+  
+  const indexCardFunction = (items) => {
+    setIndexcard(items);
+  };
+
+
   return (
     <div>
       <Header
         categories={['все', 'Креатины', 'Протеины', 'Гейнеры', 'Предтренировочные-комплексы']}
         onCategoryChange={handleCategoryChange}
         onFilterChange={handleFilterChange}
+        cartItems={cartItems}
+        onRemoveFromCart={removeFromCart}
+        onCartToggle={() => setIsCartVisible(prev => !prev)} 
+        onUpdateCartItem={handleUpdateCartItem}
       />
       
       {loading ? (
@@ -67,7 +107,11 @@ function App() {
         <div className="container-card">
           {filteredProducts.length > 0 ? (
             filteredProducts.slice(0, visibleCount).map((product) => (
-              <Card key={product.id} product={product} />
+              <Card key={product.id} 
+              product={product}
+              onAddToCart={addToCart} 
+              onIndexCard={() => indexCardFunction(product)}
+              />
             ))
           ) : (
             <h2>Нет данных для отображения</h2>
@@ -93,4 +137,3 @@ function App() {
 }
 
 export default App;
-
